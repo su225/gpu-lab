@@ -54,6 +54,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--N", type=int, default=20)
     parser.add_argument("--block-size", type=int, default=8)
+    parser.add_argument("--num-warps", type=int, default=4)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
@@ -65,7 +66,7 @@ def main():
 
     a = torch.rand(args.N, device="cuda", dtype=torch.float32)
     b = torch.rand(args.N, device="cuda", dtype=torch.float32)
-    c = vector_add(a, b, args.block_size)
+    c = vector_add(a, b, args.block_size, args.num_warps)
     expected = a + b
 
     torch.testing.assert_close(c, expected, rtol=0, atol=0)
