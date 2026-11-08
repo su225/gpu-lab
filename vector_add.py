@@ -4,6 +4,7 @@ import torch
 import triton
 import triton.language as tl
 
+DEFAULT_BLOCK_SIZE = tl.constexpr(256)
 
 @triton.jit
 def vector_add_kernel(
@@ -11,7 +12,7 @@ def vector_add_kernel(
     b_ptr,
     c_ptr,
     N,
-    BLOCK_SIZE: tl.constexpr = 256,
+    BLOCK_SIZE: tl.constexpr = DEFAULT_BLOCK_SIZE,
     num_warps: int = 4,
 ):
     pid = tl.program_id(axis=0)
@@ -46,7 +47,7 @@ def vector_add(
         return c
     grid = (triton.cdiv(n, block_size),)
     vector_add_kernel[grid](a, b, c, n,
-        BLOCK_SIZE=block_size, num_warps=num_warps)
+        BLOCK_SIZE=tl.constexpr(block_size), num_warps=num_warps)
     return c
 
 
